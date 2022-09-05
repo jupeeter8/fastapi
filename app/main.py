@@ -7,6 +7,7 @@ from . import models
 from .database import engine
 from .routers.posts import router as post_route
 from .routers.users import router as user_route
+from .routers.auth import router as auth_route
 
 
 while True:
@@ -47,6 +48,7 @@ def delete_post(id):
 
 app.include_router(post_route)
 app.include_router(user_route)
+app.include_router(auth_route)
 
 
 @ app.get('/')
