@@ -26,7 +26,7 @@ def login(user_detail: OAuth2PasswordRequestForm = Depends(), db: Session = Depe
     hashed_password = userData.password
     if utils.verify_password(hashed_password, auth_passowrd):
 
-        tocken = oAuth2.create_acces_tocken(
+        tocken = oAuth2.create_acces_token(
             data={'username': userData.username, 'id': userData.id})
         return {"access_tocken": tocken, 'tocken_type': 'bearer'}
 
