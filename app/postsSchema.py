@@ -6,7 +6,7 @@ from typing import Optional
 class Post(BaseModel):
     title: str
     content: str
-    user: str
+    user: Optional[str]
 
 
 class updatePost(BaseModel):
