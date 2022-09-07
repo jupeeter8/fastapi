@@ -12,7 +12,6 @@ class Post(BaseModel):
 class updatePost(BaseModel):
     title: Optional[str] = None
     content: Optional[str]
-    user: str
 
 
 class PostResponse(Post):
