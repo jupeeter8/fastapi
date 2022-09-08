@@ -24,10 +24,11 @@ def login(user_detail: OAuth2PasswordRequestForm = Depends(), db: Session = Depe
 
     auth_passowrd = user_detail.password
     hashed_password = userData.password
+
     if utils.verify_password(hashed_password, auth_passowrd):
 
         tocken = oAuth2.create_acces_token(
-            data={'username': userData.username, 'id': userData.id})
+            data={'id': userData.id})
         return {"access_tocken": tocken, 'tocken_type': 'bearer'}
 
     else:

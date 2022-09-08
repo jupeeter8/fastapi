@@ -1,8 +1,13 @@
 from jose import JWTError, jwt
 from datetime import timedelta, datetime
+
+from app import models
 from . import userSchema
 from fastapi import Depends, status, HTTPException
 from fastapi.security import OAuth2PasswordBearer
+from fastapi import Depends
+from sqlalchemy.orm import Session
+from . database import get_db
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
@@ -25,22 +30,28 @@ def create_acces_token(data: dict):
 def verify_token(token: str, credentials_exception):
     try:
         payload = jwt.decode(token, SECERET_KEY, algorithms=[ALGORITHM])
-        username: str = payload.get("username")
         id: int = payload.get("id")
-        if username is None or id is None:
-            print("i am herer")
+        if id is None:
             raise credentials_exception
-        token_data = userSchema.TokenData(username=username, id=id)
+        token_data = userSchema.TokenData(id=id)
 
     except JWTError:
-        print("i am herer 2")
         raise credentials_exception
 
     return token_data
 
 
-def get_current_user(token: str = Depends(oauth2_scheme)):
+def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     credentials_exception = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                                           detail="Could not validate the user", headers={"WWW-Authenticate":  "Bearer"})
 
-    return verify_token(token, credentials_exception)
+    token_data = verify_token(
+        token, credentials_exception)
+
+    user_id = token_data.id
+
+    user_details = db.query(models.User).filter(
+        models.User.id == user_id).first()
+    username = user_details.username
+
+    return username
