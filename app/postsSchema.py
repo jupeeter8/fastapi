@@ -15,6 +15,7 @@ class updatePost(BaseModel):
 
 class PostResponse(Post):
     created_at: datetime
+    user_id: int
 
     class Config:
         orm_mode = True

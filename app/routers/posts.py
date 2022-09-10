@@ -15,17 +15,17 @@ router = APIRouter(
 
 
 @router.get("/posts", response_model=List[PostResponse])
-def retrive_post(db: Session = Depends(get_db), current_user: str = Depends(oAuth2.get_current_user)):
+def retrive_post(db: Session = Depends(get_db), current_user_id: int = Depends(oAuth2.get_current_user)):
 
     posts = db.query(models.Post).all()
     return posts
 
 
 @router.post("/posts", response_model=PostResponse)  # Creating Post route
-def new_post(new_post: Post, db: Session = Depends(get_db), current_user: str = Depends(oAuth2.get_current_user)):
+def new_post(new_post: Post, db: Session = Depends(get_db), current_user_id: int = Depends(oAuth2.get_current_user)):
 
     post_data = new_post.dict()
-    post_data.update({'user': current_user})
+    post_data.update({'user_id': current_user_id})
     post = models.Post(**post_data)
 
     db.add(post)
@@ -48,12 +48,12 @@ def get_post(id: int, db: Session = Depends(get_db), current_user: str = Depends
 
 # Deleting post route
 @ router.delete("/posts/{id}", status_code=status.HTTP_204_NO_CONTENT)
-def del_post(id: int, db: Session = Depends(get_db), current_user: str = Depends(oAuth2.get_current_user)):
+def del_post(id: int, db: Session = Depends(get_db), current_user_id: int = Depends(oAuth2.get_current_user)):
 
     # Querring all entries by the user with username = current_user.username and the provided post id
 
     post = db.query(models.Post).filter(
-        models.Post.user == current_user, models.Post.id == id)
+        models.Post.user_id == current_user_id, models.Post.id == id)
 
     if not post.first():
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
@@ -64,10 +64,10 @@ def del_post(id: int, db: Session = Depends(get_db), current_user: str = Depends
 
 
 @router.put("/posts/{id}", status_code=status.HTTP_201_CREATED, response_model=PostResponse)
-def update_post(id: int, updatePost: updatePost, db:  Session = Depends(get_db), current_user: str = Depends(oAuth2.get_current_user), ):
+def update_post(id: int, updatePost: updatePost, db:  Session = Depends(get_db), current_user_id: id = Depends(oAuth2.get_current_user), ):
 
-    post_q = db.query(models.Post).filter(models.Post.user ==
-                                          current_user, models.Post.id == id)
+    post_q = db.query(models.Post).filter(models.Post.user_id ==
+                                          current_user_id, models.Post.id == id)
     post = post_q.first()
     if not post:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
@@ -83,7 +83,7 @@ def update_post(id: int, updatePost: updatePost, db:  Session = Depends(get_db),
         postData.pop(i)
     del (keyarr)
 
-    postData.update({'user': current_user})
+    # postData.update({'user': current_user})
 
     post_q.update(postData, synchronize_session=False)
     db.commit()
