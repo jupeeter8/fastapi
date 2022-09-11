@@ -6,7 +6,7 @@ from ..database import get_db
 
 from ..postsSchema import Post, PostResponse, updatePost
 from .. import models
-from typing import List
+from typing import List, Optional
 
 router = APIRouter(
     tags=['Posts']
@@ -15,9 +15,11 @@ router = APIRouter(
 
 
 @router.get("/posts", response_model=List[PostResponse])
-def retrive_post(db: Session = Depends(get_db), current_user_id: int = Depends(oAuth2.get_current_user)):
+def retrive_post(db: Session = Depends(get_db), current_user_id: int = Depends(oAuth2.get_current_user),
+                 limit: int = 5, search: Optional[str] = None):
 
-    posts = db.query(models.Post).all()
+    posts = db.query(models.Post).filter(models.Post.title.contains(
+        search)if search else True).limit(limit).all()
     return posts
 
 
