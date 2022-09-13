@@ -1,7 +1,7 @@
 from fastapi import APIRouter, status, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from app import oAuth2, userSchema
+from app import oAuth2
 from ..database import get_db
 
 from ..postsSchema import Post, PostResponse, updatePost
