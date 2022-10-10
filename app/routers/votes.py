@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from fastapi import APIRouter, status, HTTPException, Depends
+from fastapi import APIRouter, status, HTTPException, Depends, Response
 
 
 from .. database import get_db
@@ -12,7 +12,7 @@ router = APIRouter(
 
 
 @router.post('/vote', response_model=VotesResposne)
-def votes(current_user_id: int = Depends(oAuth2.get_current_user), db: Session = Depends(get_db), post_id: int = None):
+def votes(response: Response, current_user_id: int = Depends(oAuth2.get_current_user), db: Session = Depends(get_db), post_id: int = None):
     """
     how bout gettin some votes sorry bitecvhes
     """
@@ -31,19 +31,14 @@ def votes(current_user_id: int = Depends(oAuth2.get_current_user), db: Session =
     vote = vote_query.first()
     if not vote:
         vote_data = models.Votes(
-            post_id=post_id, user_id=current_user_id, vote_value=1)
+            post_id=post_id, user_id=current_user_id)
         db.add(vote_data)
         db.commit()
         db.refresh(vote_data)
         return vote_data
 
     else:
-
-        if vote.vote_value == 1:
-            vote.vote_value = 0
-        else:
-            vote.vote_value = 1
-
+        db.delete(vote)
         db.commit()
-        db.refresh(vote)
-        return vote
+
+        response.status_code = status.HTTP_204_NO_CONTENT

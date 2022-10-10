@@ -1,5 +1,6 @@
 from fastapi import APIRouter, status, Depends, HTTPException
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 
 from app import oAuth2
 from ..database import get_db
@@ -36,13 +37,17 @@ def new_post(new_post: Post, db: Session = Depends(get_db), current_user_id: int
     return post
 
 
-@ router.get("/posts/{id}", response_model=PostResponse)
+# @ router.get("/posts/{id}", response_model=PostResponse)
+@router.get("/posts/{id}")
 def get_post(id: int, db: Session = Depends(get_db), current_user: str = Depends(oAuth2.get_current_user)):
 
     post = db.query(models.Post).filter(models.Post.id == id).first()
 
     if post:
-        return post
+        pvotes = db.query(models.Post, func.count(models.Post.id).label("likes")).join(
+            models.Votes, models.Post.id == models.Votes.post_id, isouter=True).filter(models.Votes.post_id == id).group_by(models.Post.id).first()
+        return pvotes
+        # return post
     else:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Post does not exist")

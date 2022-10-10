@@ -33,4 +33,3 @@ class Votes(Base):
         "users.id", ondelete='CASCADE'), primary_key=True, nullable=False)
     post_id = Column(Integer, ForeignKey(
         "posts.id", ondelete='CASCADE'), primary_key=True, nullable=False)
-    vote_value = Column(Integer, nullable=False)
